@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>温馨祝福</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: KaiTi, 楷体, serif;
+        }
+        body {
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 60px 0;
+        }
+        h1 {
+            color: #e91e63;
+            font-size: 28px;
+            margin-bottom: 35px;
+        }
+        .btn-group {
+            margin-bottom: 40px;
+        }
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            padding: 12px 30px;
+            margin: 0 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 1;
+        }
+        .blessing-popup {
+            position: fixed;
+            width: 320px; /* 适配更大字体，适当加宽 */
+            height: 120px; /* 适配更大字体，适当加高 */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px; /* 字体从10px调大到14px */
+            padding: 15px;
+            animation: pop 0.3s ease forwards;
+            z-index: 1000;
+            text-align: center;
+            word-wrap: break-word;
+            line-height: 1.6; /* 优化行高，提升可读性 */
+        }
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #333;
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        .close-btn:hover {
+            color: #e91e63;
+            transform: none;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>尝试点击下方（猜猜有什么哇）</h1>
+    <div class="btn-group">
+        <button id="openBtn">开启</button>
+        <button id="closeAllBtn">关闭</button>
+    </div>
+
+    <script>
+        // 长句祝福列表（还原Python代码中的文案）
+        const blessings = [
+            '愿你三冬暖，春不寒，天黑有灯，下雨有伞，路上有良人相伴，一生被温柔以待。',
+            '愿你遍历山河，觉得人间值得，无论经历多少风雨，都能保持内心的澄澈与热爱。',
+            '愿你所求皆如愿，所行皆坦途，日子如熹光，温柔又明亮，每天都有小确幸相伴。',
+            '愿你被这个世界温柔以待，躲不过的惊吓都只是虚惊一场，收到的欢喜都恰如所期。',
+            '愿你往后余生，快乐是本能，幸福是常态，不为往事忧，只为余生笑，活得自在洒脱。',
+            '愿你有高跟鞋也有跑鞋，喝茶也喝酒，有勇敢的朋友，也有强大的对手，活出自己的精彩。',
+            '愿你眼中总有光芒，活成自己喜欢的模样，走过千山万水，归来仍是少年，初心不改。',
+            '愿你在迷茫时，坚信自己的珍贵，爱你所爱，行你所行，听从你心，无问西东，终会抵达。',
+            '愿你一生努力，一生被爱，想要的都拥有，得不到的都释怀，平安喜乐，顺遂无忧。',
+            '愿你如向日葵般，永远向阳而生，无论遇到什么困境，都能找到温暖的光芒与前行的力量。',
+            '愿你日子清净，抬头所见皆温柔，低头所行皆坦途，身边人平安喜乐，远方事顺遂无忧。',
+            '愿你历经世事而不失少年意趣，保持对生活的热忱与好奇，永远年轻，永远热泪盈眶。',
+            '愿你有能力爱自己，有余力爱别人，被世界温柔以待的同时，也能温柔地对待这个世界。',
+            '愿你在平凡的日子里，收获不平凡的感动，在平淡的生活中，品味出不平淡的幸福与甘甜。',
+            '愿你所到之处皆为热土，所遇之人皆为良善，所做之事皆能顺遂，所念之人平安喜乐。',
+            '愿你有足够的勇气面对所有挑战，有足够的智慧解决所有难题，有足够的幸运遇见所有美好。',
+            '愿你把日子过成诗，时而简单，时而精致，眼里有光，心中有爱，不负时光，不负自己。',
+            '愿你往后的每一步都走得坚定而从容，每一个选择都无怨无悔，每一段旅程都充实而有意义。',
+            '愿你拥有发现美的眼睛，感知温暖的心灵，在琐碎的日常中，总能找到藏起来的糖果与惊喜。',
+            '愿你一生被爱包围，被温暖呵护，既有随处可栖的江湖，也有追风逐梦的勇气与自由。',
+            '愿你不为打翻的牛奶哭泣，不为逝去的昨天烦恼，专注于当下的每一刻，活出真实的自己。',
+            '愿你在风雨中学会坚强，在挫折中学会成长，在黑暗中学会发光，成为自己的太阳。',
+            '愿你有说走就走的勇气，也有沉淀下来的耐心，既能朝九晚五，也能浪迹天涯，不负此生。',
+            '愿你所得皆所愿，所失亦无碍，失去的会以另一种方式归来，拥有的能加倍珍惜与善待。',
+            '愿你保持对生活的热爱，把每一天都过得热气腾腾，在平凡的岗位上，做出不平凡的成绩。',
+            '愿你心中有丘壑，眼底存山河，历经沧桑而不失纯真，看过世故仍保持善良与真诚。',
+            '愿你有不期而遇的温暖，和生生不息的希望，在漫长的岁月里，活成自己最想要的样子。',
+            '愿你无论多大，都能热爱童话、英雄和魔法，保持那份纯粹与天真，对抗世界的复杂。',
+            '愿你付出甘之如饴，所得归于欢喜，所有的努力都有回报，所有的等待都不被辜负。',
+            '愿你在薄情的世界里深情地活，在复杂的人群中简单地过，守住初心，方得始终。',
+            '愿你有健康的身体，乐观的心态，热爱的事业，相伴的爱人，把生活过成自己喜欢的模样。',
+            '愿你走过的弯路都成为风景，经历的风雨都化作彩虹，所有的坎坷都是通往幸福的铺垫。',
+            '愿你被生活温柔以待，也能温柔地对待生活，在柴米油盐中寻诗意，在平淡日常中找惊喜。',
+            '愿你拥有感知幸福的能力，即使是微小的美好也能被捕捉，让每一天都充满阳光与温暖。',
+            '愿你一生平安顺遂，喜乐无忧，不为琐事烦扰，不为未来焦虑，活在当下，享受此刻的宁静。'
+        ];
+
+        // 背景颜色列表（还原Python代码中的颜色）
+        const bgColors = [
+            'lightpink', 'skyblue', 'lightgreen', 'lavender', 'lightyellow',
+            'plum', 'coral', 'bisque', 'aquamarine', 'mistyrose', 'honeydew',
+            'peachpuff', 'paleturquoise', 'lavenderblush', 'oldlace', 'lemonchiffon'
+        ];
+
+        const openBtn = document.getElementById("openBtn");
+        const closeAllBtn = document.getElementById("closeAllBtn");
+        let popupCount = 0;
+        const maxPopups = 150; // 还原Python中的窗口数量
+
+        // 生成单个祝福弹窗
+        function createBlessingPopup() {
+            if (popupCount >= maxPopups) return;
+
+            const popup = document.createElement("div");
+            popup.className = "blessing-popup";
+
+            // 随机背景色
+            const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            popup.style.backgroundColor = randomColor;
+
+            // 随机祝福内容
+            const blessingContent = blessings[Math.floor(Math.random() * blessings.length)];
+            popup.innerHTML = `
+                <span>${blessingContent}</span>
+                <button class="close-btn">×</button>
+            `;
+
+            // 随机位置（适配新弹窗尺寸，调整计算逻辑）
+            const maxLeft = window.innerWidth - 320;
+            const maxTop = window.innerHeight - 120;
+            popup.style.left = `${Math.floor(Math.random() * maxLeft)}px`;
+            popup.style.top = `${Math.floor(Math.random() * maxTop)}px`;
+
+            // 关闭按钮事件
+            const closeBtn = popup.querySelector(".close-btn");
+            closeBtn.addEventListener("click", () => {
+                popup.remove();
+                popupCount--;
+            });
+
+            // 8秒自动关闭（还原Python中的延迟）
+            setTimeout(() => {
+                if (document.body.contains(popup)) {
+                    popup.remove();
+                    popupCount--;
+                }
+            }, 8000);
+
+            document.body.appendChild(popup);
+            popupCount++;
+        }
+
+        // 开启祝福按钮事件
+        openBtn.addEventListener("click", () => {
+            openBtn.disabled = true;
+            popupCount = 0;
+
+            // 20ms间隔生成150个弹窗（还原Python中的间隔）
+            const interval = setInterval(() => {
+                createBlessingPopup();
+                if (popupCount >= maxPopups) clearInterval(interval);
+            }, 20);
+
+            // 5秒后恢复按钮可用
+            setTimeout(() => {
+                openBtn.disabled = false;
+            }, 5000);
+        });
+
+        // 关闭所有按钮事件
+        closeAllBtn.addEventListener("click", () => {
+            const allPopups = document.querySelectorAll(".blessing-popup");
+            allPopups.forEach(popup => popup.remove());
+            popupCount = 0;
+            openBtn.disabled = false;
+        });
+    </script>
+</body>
+</html>
